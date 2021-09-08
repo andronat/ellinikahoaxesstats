@@ -46,6 +46,9 @@ def main():
 
     logging.info(f"Total articles collected: {len(a_urls)}")
 
+    with open("all_article_urls.txt", "w") as outfile:
+        outfile.write("\n".join(a_urls))
+
 
 if __name__ == "__main__":
     main()
