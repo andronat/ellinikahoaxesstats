@@ -1,3 +1,4 @@
+import glob
 import logging
 import os.path as path
 import requests
@@ -57,6 +58,19 @@ def save_article_urls(a_urls):
         f.write("\n".join(a_urls))
 
 
+def create_name_from_url(url):
+    year, month, day, title = url.split("/")[3:7]
+    # In order to avoid date collisions but still been able to read the dates
+    # let's hash the title.
+    salt = str(abs(hash(title)) % (10 ** 8))
+    return "-".join([year, month, day, salt])
+
+
+def save_page(page, filename):
+    with open(f"page-{filename}.html", "w", encoding="utf-8") as file:
+        file.write(str(page.prettify()))
+
+
 def load_article_urls():
     with open(DB_FILENAME, "r") as f:
         return f.read().splitlines()
@@ -71,6 +85,11 @@ def main():
     else:
         a_urls = load_article_urls()
         logging.info(f"Article URLs found in DB: {len(a_urls)}")
+
+    if len(glob.glob("page-*.html")) == 0:
+        for a_url in a_urls:
+            page = download_page(a_url)
+            save_page(page, create_name_from_url(a_url))
 
 
 if __name__ == "__main__":
