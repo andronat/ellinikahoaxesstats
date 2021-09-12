@@ -11,6 +11,7 @@ logging.basicConfig(format="%(message)s", level=logging.INFO)
 
 def download_page(url):
     page = requests.get(url)
+    page.raise_for_status()
     return BeautifulSoup(page.content, "html.parser")
 
 
