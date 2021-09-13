@@ -121,11 +121,13 @@ def main():
     pages = load_pages()
     logging.info(f"Articles loaded: {len(pages)}")
 
+    no_examples = 0
     for page in pages:
         article = focus_on_article(page)
         examples_paragraph = focus_on_examples(article)
 
         if len(examples_paragraph) == 0:
+            no_examples += 1
             logging.debug(f"'{page.title.string.strip()}' has no examples.")
         elif len(examples_paragraph) > 1:
             logging.error(f"'{page.title.string}' has multiple Examples...")
@@ -133,6 +135,8 @@ def main():
         for exam in examples_paragraph:
             website_names = collect_fakenewswebsites(exam)
             print(website_names)
+
+    logging.info(f"Number of articles without examples: {no_examples}")
 
 if __name__ == "__main__":
     main()
