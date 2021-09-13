@@ -76,6 +76,14 @@ def load_article_urls():
         return f.read().splitlines()
 
 
+def load_pages():
+    pages = []
+    for pagefile in glob.glob("page-*.html"):
+        with open(pagefile, "r", encoding="utf-8") as file:
+            pages.append(BeautifulSoup(file.read(), "html.parser"))
+    return pages
+
+
 def main():
     db_path = path.join(path.dirname(path.realpath(__file__)), DB_FILENAME)
     if not path.isfile(db_path):
@@ -91,6 +99,8 @@ def main():
             page = download_page(a_url)
             save_page(page, create_name_from_url(a_url))
 
+    pages = load_pages()
+    logging.info(f"Articles loaded: {len(pages)}")
 
 if __name__ == "__main__":
     main()
