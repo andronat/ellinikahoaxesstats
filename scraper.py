@@ -5,6 +5,8 @@ import re
 import requests
 
 from bs4 import BeautifulSoup
+from collections import Counter
+from pprint import pformat
 
 DB_FILENAME = "all_article_urls.txt"
 
@@ -122,6 +124,7 @@ def main():
     logging.info(f"Articles loaded: {len(pages)}")
 
     no_examples = 0
+    fakenews_website_names = []
     for page in pages:
         article = focus_on_article(page)
         examples_paragraph = focus_on_examples(article)
@@ -133,10 +136,14 @@ def main():
             logging.error(f"'{page.title.string}' has multiple Examples...")
 
         for exam in examples_paragraph:
-            website_names = collect_fakenewswebsites(exam)
-            print(website_names)
+            fakenews_website_names += collect_fakenewswebsites(exam)
 
     logging.info(f"Number of articles without examples: {no_examples}")
+    logging.info(f"Fake news websites by article frequency:")
+
+    ranks = Counter(fakenews_website_names).most_common()
+    logging.info(pformat(ranks))
+
 
 if __name__ == "__main__":
     main()
