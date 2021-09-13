@@ -1,6 +1,7 @@
 import glob
 import logging
 import os.path as path
+import re
 import requests
 
 from bs4 import BeautifulSoup
@@ -84,6 +85,24 @@ def load_pages():
     return pages
 
 
+def focus_on_article(tag):
+    return tag.find("div", attrs={"id": re.compile("post-*")})
+
+
+def focus_on_examples(tag):
+    needles = ["Παραδείγματα:", "Παράδειγμα:"]
+    return tag.find_all(
+        lambda t: t.name == "p" and any(needle in t.text for needle in needles)
+    )
+
+
+def collect_fakenewswebsites(tag):
+    websites = []
+    for a in tag.find_all("a", attrs={"href": True}):
+        websites.append(a.string.strip())
+    return websites
+
+
 def main():
     db_path = path.join(path.dirname(path.realpath(__file__)), DB_FILENAME)
     if not path.isfile(db_path):
@@ -101,6 +120,19 @@ def main():
 
     pages = load_pages()
     logging.info(f"Articles loaded: {len(pages)}")
+
+    for page in pages:
+        article = focus_on_article(page)
+        examples_paragraph = focus_on_examples(article)
+
+        if len(examples_paragraph) == 0:
+            logging.debug(f"'{page.title.string.strip()}' has no examples.")
+        elif len(examples_paragraph) > 1:
+            logging.error(f"'{page.title.string}' has multiple Examples...")
+
+        for exam in examples_paragraph:
+            website_names = collect_fakenewswebsites(exam)
+            print(website_names)
 
 if __name__ == "__main__":
     main()
