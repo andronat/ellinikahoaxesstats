@@ -78,9 +78,15 @@ def create_name_from_url(url):
 
 
 def save_page(page, filename):
-    with open(
-        path.join(LOCAL_DATA_DIR, f"page-{filename}.html"), "w", encoding="utf-8"
-    ) as file:
+    n_filepath = path.join(LOCAL_DATA_DIR, f"page-{filename}.html")
+
+    i = 0
+    while path.isfile(n_filepath):
+        logging.warning(f"{n_filepath} is colliding!")
+        n_filepath = path.join(LOCAL_DATA_DIR, f"page-{filename}-{i}.html")
+        i += 1
+
+    with open(n_filepath, "w", encoding="utf-8") as file:
         file.write(str(page.prettify()))
 
 
