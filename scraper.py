@@ -1,5 +1,6 @@
 import glob
 import logging
+import os
 import os.path as path
 import re
 import requests
@@ -8,9 +9,16 @@ from bs4 import BeautifulSoup
 from collections import Counter
 from pprint import pformat
 
+LOCAL_DATA_DIR = "cache"
+PAGES_FILE_PATTERN = path.join(LOCAL_DATA_DIR, "page-*.html")
 DB_FILENAME = "all_article_urls.txt"
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
+
+
+def init_cache():
+    if not path.isdir(LOCAL_DATA_DIR):
+        os.makedirs(LOCAL_DATA_DIR)
 
 
 def download_page(url):
@@ -57,7 +65,7 @@ def scrap_article_urls():
 
 
 def save_article_urls(a_urls):
-    with open(DB_FILENAME, "w") as f:
+    with open(path.join(LOCAL_DATA_DIR, DB_FILENAME), "w") as f:
         f.write("\n".join(a_urls))
 
 
@@ -70,18 +78,20 @@ def create_name_from_url(url):
 
 
 def save_page(page, filename):
-    with open(f"page-{filename}.html", "w", encoding="utf-8") as file:
+    with open(
+        path.join(LOCAL_DATA_DIR, f"page-{filename}.html"), "w", encoding="utf-8"
+    ) as file:
         file.write(str(page.prettify()))
 
 
 def load_article_urls():
-    with open(DB_FILENAME, "r") as f:
+    with open(path.join(LOCAL_DATA_DIR, DB_FILENAME), "r") as f:
         return f.read().splitlines()
 
 
 def load_pages():
     pages = []
-    for pagefile in glob.glob("page-*.html"):
+    for pagefile in glob.glob(PAGES_FILE_PATTERN):
         with open(pagefile, "r", encoding="utf-8") as file:
             pages.append(BeautifulSoup(file.read(), "html.parser"))
     return pages
@@ -106,7 +116,11 @@ def collect_fakenewswebsites(tag):
 
 
 def main():
-    db_path = path.join(path.dirname(path.realpath(__file__)), DB_FILENAME)
+    init_cache()
+
+    db_path = path.join(
+        path.dirname(path.realpath(__file__)), LOCAL_DATA_DIR, DB_FILENAME
+    )
     if not path.isfile(db_path):
         logging.info(f"Looking for article URLs")
         a_urls = scrap_article_urls()
@@ -115,7 +129,7 @@ def main():
         a_urls = load_article_urls()
         logging.info(f"Article URLs found in DB: {len(a_urls)}")
 
-    if len(glob.glob("page-*.html")) == 0:
+    if len(glob.glob(PAGES_FILE_PATTERN)) == 0:
         for a_url in a_urls:
             page = download_page(a_url)
             save_page(page, create_name_from_url(a_url))
