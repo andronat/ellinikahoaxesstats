@@ -1,17 +1,18 @@
-import glob
 import logging
 import os
 import os.path as path
+import pickle
 import re
 import requests
+import sys
 
 from bs4 import BeautifulSoup
 from collections import Counter
 from pprint import pformat
 
-LOCAL_DATA_DIR = "cache"
-PAGES_FILE_PATTERN = path.join(LOCAL_DATA_DIR, "page-*.html")
-DB_FILENAME = "all_article_urls.txt"
+LOCAL_DATA_DIR = path.join(path.dirname(path.realpath(__file__)), "cache")
+ARTICLE_URL_DB = path.join(LOCAL_DATA_DIR, "all_article_urls.txt")
+ARTICLE_DB = path.join(LOCAL_DATA_DIR, "articles.pickle")
 
 logging.basicConfig(format="%(message)s", level=logging.INFO)
 
@@ -65,42 +66,25 @@ def scrap_article_urls():
 
 
 def save_article_urls(a_urls):
-    with open(path.join(LOCAL_DATA_DIR, DB_FILENAME), "w") as f:
+    with open(ARTICLE_URL_DB, "w") as f:
         f.write("\n".join(a_urls))
 
 
-def create_name_from_url(url):
-    year, month, day, title = url.split("/")[3:7]
-    # In order to avoid date collisions but still been able to read the dates
-    # let's hash the title.
-    salt = str(abs(hash(title)) % (10 ** 8))
-    return "-".join([year, month, day, salt])
+def save_articles(articles):
+    sys.setrecursionlimit(100000)
 
-
-def save_page(page, filename):
-    n_filepath = path.join(LOCAL_DATA_DIR, f"page-{filename}.html")
-
-    i = 0
-    while path.isfile(n_filepath):
-        logging.warning(f"{n_filepath} is colliding!")
-        n_filepath = path.join(LOCAL_DATA_DIR, f"page-{filename}-{i}.html")
-        i += 1
-
-    with open(n_filepath, "w", encoding="utf-8") as file:
-        file.write(str(page.prettify()))
+    with open(ARTICLE_DB, "wb") as file:
+        pickle.dump(articles, file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def load_article_urls():
-    with open(path.join(LOCAL_DATA_DIR, DB_FILENAME), "r") as f:
+    with open(ARTICLE_URL_DB, "r") as f:
         return f.read().splitlines()
 
 
-def load_pages():
-    pages = []
-    for pagefile in glob.glob(PAGES_FILE_PATTERN):
-        with open(pagefile, "r", encoding="utf-8") as file:
-            pages.append(BeautifulSoup(file.read(), "html.parser"))
-    return pages
+def load_articles():
+    with open(ARTICLE_DB, "rb") as file:
+        return pickle.load(file)
 
 
 def focus_on_article(tag):
@@ -127,36 +111,36 @@ def collect_fakenewswebsites(tag):
 def main():
     init_cache()
 
-    db_path = path.join(
-        path.dirname(path.realpath(__file__)), LOCAL_DATA_DIR, DB_FILENAME
-    )
-    if not path.isfile(db_path):
-        logging.info(f"Looking for article URLs")
+    if not path.isfile(ARTICLE_URL_DB):
+        logging.info("Looking for article URLs")
         a_urls = scrap_article_urls()
         save_article_urls(a_urls)
     else:
         a_urls = load_article_urls()
         logging.info(f"Article URLs found in DB: {len(a_urls)}")
 
-    if len(glob.glob(PAGES_FILE_PATTERN)) == 0:
+    if not path.isfile(ARTICLE_DB):
+        logging.info("Downloading articles from URLs")
+        articles = []
         for a_url in a_urls:
-            page = download_page(a_url)
-            save_page(page, create_name_from_url(a_url))
+            articles.append(focus_on_article(download_page(a_url)))
+        save_articles(articles)
 
-    pages = load_pages()
-    logging.info(f"Articles loaded: {len(pages)}")
+    logging.info(f"Loading articles from {ARTICLE_DB}")
+    articles = load_articles()
+
+    logging.info(f"Articles loaded: {len(articles)}")
 
     no_examples = 0
     fakenews_website_names = []
-    for page in pages:
-        article = focus_on_article(page)
+    for article in articles:
         examples_paragraph = focus_on_examples(article)
 
         if len(examples_paragraph) == 0:
             no_examples += 1
-            logging.debug(f"'{page.title.string.strip()}' has no examples.")
+            logging.debug(f"'{article.title.string.strip()}' has no examples.")
         elif len(examples_paragraph) > 1:
-            logging.error(f"'{page.title.string}' has multiple Examples...")
+            logging.error(f"'{article.title.string}' has multiple Examples...")
 
         for exam in examples_paragraph:
             fakenews_website_names += collect_fakenewswebsites(exam)
