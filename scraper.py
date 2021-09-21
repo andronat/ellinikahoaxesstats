@@ -144,7 +144,7 @@ def main():
         for exam in examples_paragraph:
             fakenews_website_names += collect_fakenewswebsites(exam)
 
-    logging.info(f"Number of articles without examples: {no_examples}")
+    logging.info(f"Number of articles without examples: {len(no_examples_articles)}")
     logging.info(f"Fake news websites by article frequency:")
 
     ranks = Counter(fakenews_website_names).most_common()
