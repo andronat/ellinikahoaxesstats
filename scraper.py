@@ -138,11 +138,13 @@ def main():
 
         if len(examples_paragraph) == 0:
             no_examples_articles.append(article)
-        elif len(examples_paragraph) > 1:
-            logging.error(f"'{examples_paragraph}' has multiple Examples...")
 
-        for exam in examples_paragraph:
-            fakenews_website_names += collect_fakenewswebsites(exam)
+        # Sometimes articles reference the same website in multiples areas. We
+        # sound count them all as 1 occurrence.
+        websites_names = set()
+        for example in examples_paragraph:
+            websites_names.update(collect_fakenewswebsites(example))
+        fakenews_website_names.extend(websites_names)
 
     logging.info(f"Number of articles without examples: {len(no_examples_articles)}")
     logging.info(f"Fake news websites by article frequency:")
