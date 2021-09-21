@@ -92,7 +92,7 @@ def focus_on_article(tag):
 
 
 def focus_on_examples(tag):
-    needles = ["Παραδείγματα:", "Παράδειγμα:"]
+    needles = ["Παραδείγματα:", "Παράδειγμα:", "Το είδαμε στα", "σε ιστοσελίδες όπως"]
     return tag.find_all(
         lambda t: t.name == "p" and any(needle in t.text for needle in needles)
     )
