@@ -139,7 +139,7 @@ def main():
         if len(examples_paragraph) == 0:
             no_examples_articles.append(article)
         elif len(examples_paragraph) > 1:
-            logging.error(f"'{article.title.string}' has multiple Examples...")
+            logging.error(f"'{examples_paragraph}' has multiple Examples...")
 
         for exam in examples_paragraph:
             fakenews_website_names += collect_fakenewswebsites(exam)
