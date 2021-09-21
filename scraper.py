@@ -99,10 +99,31 @@ def focus_on_examples(tag):
 
 
 def collect_fakenewswebsites(tag):
+    def is_irrelevant_url(url):
+        needles = [
+            "https://archive",
+            "https://perma",
+            "archive.org",
+            "health.gov",
+            "ellinikahoaxes.gr",
+        ]
+        return any(needle in url for needle in needles)
+
     websites = []
     for a in tag.find_all("a", attrs={"href": True}):
         if a.string:
-            websites.append(a.string.strip())
+            if a.string.strip().startswith("πηγή") and is_irrelevant_url(a["href"]):
+                # We skip examples that 'probably' point to evidence and not fakenews websites.
+                pass
+            elif a.string.strip().startswith("πηγή"):
+                logging.debug(f"Found 'πηγή' link: {a.prettify()}")
+                try:
+                    url = a["href"].split("/")[2:3][0]
+                    websites.append(str(url))
+                except IndexError:
+                    logging.error(f"Failed to parse 'πηγή' link: {a.prettify()}")
+            else:
+                websites.append(a.string.strip())
         else:
             logging.warning(f"{a} has no string representation. Ignoring it.")
     return websites
