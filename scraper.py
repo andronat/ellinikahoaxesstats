@@ -131,14 +131,13 @@ def main():
 
     logging.info(f"Articles loaded: {len(articles)}")
 
-    no_examples = 0
+    no_examples_articles = []
     fakenews_website_names = []
     for article in articles:
         examples_paragraph = focus_on_examples(article)
 
         if len(examples_paragraph) == 0:
-            no_examples += 1
-            logging.debug(f"'{article.title.string.strip()}' has no examples.")
+            no_examples_articles.append(article)
         elif len(examples_paragraph) > 1:
             logging.error(f"'{article.title.string}' has multiple Examples...")
 
