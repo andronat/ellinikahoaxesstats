@@ -7,7 +7,7 @@ import requests
 import sys
 
 from bs4 import BeautifulSoup
-from collections import Counter
+from collections import Counter, defaultdict
 from pprint import pformat
 
 LOCAL_DATA_DIR = path.join(path.dirname(path.realpath(__file__)), "cache")
@@ -171,7 +171,7 @@ def main():
         examples_paragraph = focus_on_examples(article)
 
         if len(examples_paragraph) == 0:
-            no_examples_articles.append(article)
+            no_examples_articles.append(set(collect_relevant_names_from_urls(article)))
 
         # Sometimes articles reference the same website in multiples areas. We
         # sound count them all as 1 occurrence.
@@ -187,6 +187,31 @@ def main():
     ranks = fnw_names_freq.most_common(10)
     logging.info(f"Fake news websites by article frequency:")
     logging.info(pformat(ranks))
+
+    # Q2: Inverse search and then Top 10.
+    needles = fnw_names_freq.keys()
+    from_inverse_search = defaultdict(int)
+    articles_we_found_nothing = []
+    for no_examples_article in no_examples_articles:
+        we_found_something = False
+
+        for needle in needles:
+            if needle in str(no_examples_article):
+                from_inverse_search[needle] += 1
+                we_found_something = True
+
+        if not we_found_something:
+            articles_we_found_nothing.append(no_examples_article)
+
+    fnw_names_freq.update(from_inverse_search)
+
+    ranks_with_inverse = fnw_names_freq.most_common(10)
+    logging.info(f"Fake news websites by article frequency (after inverse-search):")
+    logging.info(pformat(ranks_with_inverse))
+
+    logging.info(
+        f"Number of articles without examples (after inverse-search): {len(articles_we_found_nothing)}"
+    )
 
 
 if __name__ == "__main__":
