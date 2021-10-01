@@ -106,6 +106,7 @@ def collect_relevant_names_from_urls(tag):
             "archive.org",
             "health.gov",
             "ellinikahoaxes.gr",
+            "bit.ly",
         ]
         return any(needle in url for needle in needles)
 
