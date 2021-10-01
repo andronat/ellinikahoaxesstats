@@ -98,7 +98,7 @@ def focus_on_examples(tag):
     )
 
 
-def collect_fakenewswebsites(tag):
+def collect_relevant_names_from_urls(tag):
     def is_irrelevant_url(url):
         needles = [
             "https://archive",
@@ -164,7 +164,7 @@ def main():
         # sound count them all as 1 occurrence.
         websites_names = set()
         for example in examples_paragraph:
-            websites_names.update(collect_fakenewswebsites(example))
+            websites_names.update(collect_relevant_names_from_urls(example))
         fakenews_website_names.extend(websites_names)
 
     logging.info(f"Number of articles without examples: {len(no_examples_articles)}")
