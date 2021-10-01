@@ -169,11 +169,11 @@ def main():
         fakenews_website_names.extend(websites_names)
 
     logging.info(f"Number of articles without examples: {len(no_examples_articles)}")
-    logging.info(f"Fake news websites by article frequency:")
 
     # Q1: Top 10 websites.
     fnw_names_freq = Counter(fakenews_website_names)
-    ranks = fnw_names_freq.most_common()
+    ranks = fnw_names_freq.most_common(10)
+    logging.info(f"Fake news websites by article frequency:")
     logging.info(pformat(ranks))
 
 
