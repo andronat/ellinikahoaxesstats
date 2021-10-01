@@ -110,21 +110,33 @@ def collect_relevant_names_from_urls(tag):
         ]
         return any(needle in url for needle in needles)
 
+    # Sometimes an <a> tag has some generic string as a link. We need to check
+    # then if the underlying href is interesting.
+    def should_check_href_instead_of_data(data):
+        needles = ["πηγή", "εδώ", "1", "2", "3", "4", "δημοσίευση", "βίντεο"]
+        return any(data.startswith(needle) for needle in needles)
+
     websites = []
     for a in tag.find_all("a", attrs={"href": True}):
+        # We are looking for .string as it is visible to the web representation.
         if a.string:
-            if a.string.strip().startswith("πηγή") and is_irrelevant_url(a["href"]):
-                # We skip examples that 'probably' point to evidence and not fakenews websites.
-                pass
-            elif a.string.strip().startswith("πηγή"):
-                logging.debug(f"Found 'πηγή' link: {a.prettify()}")
-                try:
-                    url = a["href"].split("/")[2:3][0]
-                    websites.append(str(url))
-                except IndexError:
-                    logging.error(f"Failed to parse 'πηγή' link: {a.prettify()}")
+            tag_data = a.string.strip()
+            check_href = should_check_href_instead_of_data(tag_data)
+
+            if check_href:
+                if is_irrelevant_url(a["href"]):
+                    # We skip examples that 'probably' point to evidence and not
+                    # fakenews websites.
+                    pass
+                else:
+                    logging.debug(f"Found 'special' link: {a.prettify()}")
+                    try:
+                        url = a["href"].split("/")[2:3][0]
+                        websites.append(str(url))
+                    except IndexError:
+                        logging.error(f"Failed to parse 'special' link: {a.prettify()}")
             else:
-                websites.append(a.string.strip())
+                websites.append(tag_data)
         else:
             logging.debug(f"{a} has no string representation. Ignoring it.")
     return websites
