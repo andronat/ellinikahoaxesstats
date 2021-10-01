@@ -126,7 +126,7 @@ def collect_relevant_names_from_urls(tag):
             else:
                 websites.append(a.string.strip())
         else:
-            logging.warning(f"{a} has no string representation. Ignoring it.")
+            logging.debug(f"{a} has no string representation. Ignoring it.")
     return websites
 
 
