@@ -4,42 +4,45 @@ channels:
 dependencies:
   - beautifulsoup4=4.10.0=pyh06a4308_0
   - brotlipy=0.7.0=py39h9ed2024_1003
-  - ca-certificates=2021.7.5=hecd8cb5_1
-  - certifi=2021.5.30=py39hecd8cb5_0
-  - cffi=1.14.6=py39h2125817_0
-  - charset-normalizer=2.0.4=pyhd3eb1b0_0
-  - idna=3.2=pyhd3eb1b0_0
+  - ca-certificates=2021.10.26=hecd8cb5_2
+  - certifi=2021.10.8=py39hecd8cb5_0
+  - idna=3.3=pyhd3eb1b0_0
   - libcxx=12.0.0=h2f01273_0
   - libffi=3.3=hb1e8313_2
-  - ncurses=6.2=h0a44026_1
+  - ncurses=6.3=hca72f7f_2
   - openssl=1.1.1l=h9ed2024_0
-  - pip=21.2.4=py37hecd8cb5_0
-  - pycparser=2.20=py_2
-  - pyopenssl=20.0.1=pyhd3eb1b0_1
+  - pycparser=2.21=pyhd3eb1b0_0
+  - pyopenssl=21.0.0=pyhd3eb1b0_1
   - pysocks=1.7.1=py39hecd8cb5_0
   - python=3.9.7=h88f2d9e_1
   - readline=8.1=h9ed2024_0
   - requests=2.26.0=pyhd3eb1b0_0
   - six=1.16.0=pyhd3eb1b0_0
-  - soupsieve=2.2.1=pyhd3eb1b0_0
+  - soupsieve=2.3.1=pyhd3eb1b0_0
   - sqlite=3.36.0=hce871da_0
-  - tk=8.6.10=hb0a8c7a_0
-  - tzdata=2021a=h5d7bf9c_0
-  - urllib3=1.26.6=pyhd3eb1b0_1
-  - wheel=0.37.0=pyhd3eb1b0_1
+  - tk=8.6.11=h7bc2e8c_0
+  - tzdata=2021e=hda174b7_0
+  - urllib3=1.26.7=pyhd3eb1b0_0
   - xz=5.2.5=h1de35cc_0
-  - zlib=1.2.11=h1de35cc_3
+  - zlib=1.2.11=h4dc903c_4
   - pip:
     - black==21.8b0
-    - click==8.0.1
-    - cryptography==3.4.8
+    - cffi==1.15.0
+    - charset-normalizer==2.0.9
+    - click==8.0.3
+    - cryptography==36.0.1
+    - dill==0.3.4
     - mypy-extensions==0.4.3
-    - packaging==21.0
+    - packaging==21.3
     - pathspec==0.9.0
-    - pip-review==1.1.0
-    - platformdirs==2.3.0
-    - pyparsing==2.4.7
-    - regex==2021.8.28
+    - pip==21.3.1
+    - pip-review==1.1.1
+    - platformdirs==2.4.1
+    - pyparsing==3.0.6
+    - regex==2021.11.10
     - setuptools==58.0.3
-    - tomli==1.2.1
-    - typing-extensions==3.10.0.2
+    - tomli==2.0.0
+    - tqdm==4.62.3
+    - typing-extensions==4.0.1
+    - wheel==0.37.1
+prefix: /Users/andronat/homebrew/Caskroom/miniconda/base/envs/ellinikahoaxesstats
